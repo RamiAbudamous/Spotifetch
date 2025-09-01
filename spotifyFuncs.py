@@ -1,14 +1,13 @@
+import config
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-# import spotipy.util as util
 import os
-
 import urllib.request
 from PIL import Image
-IMAGE_SIZE = 160
 
 def getSpotifyCreds():
-    client_path = os.path.expanduser("~/Desktop/projects/spotify_neofetch/data/client.txt")
+    client_path_dir = f"{config.LOCATION}/data/client.txt"
+    client_path = os.path.expanduser(client_path_dir)
     with open(client_path, 'r') as client_file:
         clients = client_file.readlines()
         clientID = clients[0].strip()
@@ -17,11 +16,8 @@ def getSpotifyCreds():
         username = clients[3].strip()
 
     #only need the first
-    scope = 'user-read-playback-state user-read-currently-playing user-modify-playback-state'
+    scope = 'user-read-playback-state user-read-currently-playing'
     # scope = 'user-modify-playback-state'
-
-    # token = util.prompt_for_user_token(username, scope, client_id=clientID, client_secret=clientSec, redirect_uri=redirectUri)
-    # spotify = spotipy.Spotify(auth=token)
     spotifyCreds = spotipy.Spotify(auth_manager=SpotifyOAuth(username=username, scope=scope, client_id=clientID, client_secret=clientSec, redirect_uri=redirectUri))
     return spotifyCreds
 
@@ -53,7 +49,7 @@ def getSongArt(current_track):
                 artistList += f"{artists[i]}, "
             artistList += f"{artists[len(artists)-1]}"
 
-        neofetch_path = os.path.expanduser("~/Documents/neofetch/")
+        neofetch_path = os.path.expanduser(config.PATH)
         urllib.request.urlretrieve(art, f"{neofetch_path}/spotifyImage.png")
 
         progress = int(current_track["progress_ms"]/1000)
@@ -61,14 +57,15 @@ def getSongArt(current_track):
         remaining = int(duration-progress)
         progress_bar = calcProgressBar(progress, duration)
 
+        width = config.WIDTH
         songInfo = f"{progress_bar}  (-{remaining//60}:{str(remaining%60).zfill(2)}) {songTitle} - {artistList}\n"
-        if len(songInfo)>120: #only keep the first 120 characters
-            songInfo = songInfo[:120]
+        if len(songInfo)>(3*width): #only keep 2 lines of characters
+            songInfo = songInfo[:(3*width)]
 
-        if len(songInfo)>80:
-            before = songInfo[:80]
-            after = songInfo[80:]
-            songString = before + (" " * 40) + after
+        if len(songInfo)>(2*width):
+            before = songInfo[:(2*width)]
+            after = songInfo[(2*width):]
+            songString = before + (" " * width) + after
         else:
             songString = songInfo + "\n"
 
