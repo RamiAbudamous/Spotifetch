@@ -22,53 +22,69 @@ def getSpotifyCreds():
     return spotifyCreds
 
 
+def getSpotifyTrack(sp):
+    return sp.current_user_playing_track()
+
+
 def calcProgressBar(progress, duration, segments=36):
     percentage = progress/duration
     filledSegments = int(percentage*segments)
     bar = "█" * filledSegments + "-" * (segments-filledSegments)
     return f"[{bar}]"
 
-def getSpotifyTrack(sp):
-    return sp.current_user_playing_track()
 
-def getSongArt(current_track):
-    if current_track!=None:
-        song = current_track["item"]
-        art = song["album"]["images"][1]["url"]    
-        songTitle = song["name"]
+def getCurrentPlayingSongInfo(current_track, artistList):
+    song = current_track["item"]
 
-        artists = []
-        for artist in song["artists"]:
-            artists.append(artist["name"])
+    progress = int(current_track["progress_ms"]/1000)
+    duration = int(song["duration_ms"]/1000)
+    remaining = int(duration-progress)
+    progress_bar = calcProgressBar(progress, duration)
 
-        artistList = ""
-        if len(artists)==1:
-            artistList = artists[0]
-        elif len(artists)>1:
-            for i in range(len(artists)-1):
-                artistList += f"{artists[i]}, "
-            artistList += f"{artists[len(artists)-1]}"
+    width = config.WIDTH
+    songInfo = f"{progress_bar}  (-{remaining//60}:{str(remaining%60).zfill(2)}) {song["name"]} - {artistList}\n"
+    if len(songInfo)>(3*width): #only keep 2 lines of characters
+        songInfo = songInfo[:(3*width)]
 
-        neofetch_path = os.path.expanduser(config.PATH)
-        urllib.request.urlretrieve(art, f"{neofetch_path}/spotifyImage.png")
+    if len(songInfo)>(2*width):
+        before = songInfo[:(2*width)]
+        after = songInfo[(2*width):]
+        songString = before + (" " * width) + after
+    else:
+        songString = songInfo + "\n"
 
-        progress = int(current_track["progress_ms"]/1000)
-        duration = int(song["duration_ms"]/1000)
-        remaining = int(duration-progress)
-        progress_bar = calcProgressBar(progress, duration)
+    return songString
 
-        width = config.WIDTH
-        songInfo = f"{progress_bar}  (-{remaining//60}:{str(remaining%60).zfill(2)}) {songTitle} - {artistList}\n"
-        if len(songInfo)>(3*width): #only keep 2 lines of characters
-            songInfo = songInfo[:(3*width)]
 
-        if len(songInfo)>(2*width):
-            before = songInfo[:(2*width)]
-            after = songInfo[(2*width):]
-            songString = before + (" " * width) + after
-        else:
-            songString = songInfo + "\n"
+def getArtists(song):
+    artists = []
+    for artist in song["artists"]:
+        artists.append(artist["name"])
 
-        file_path = f"{neofetch_path}/spotifySong.txt"
-        with open(file_path, 'w') as file:
-            file.write(songString)
+    artistList = ""
+    if len(artists)==1:
+        artistList = artists[0]
+    elif len(artists)>1:
+        for i in range(len(artists)-1):
+            artistList += f"{artists[i]}, "
+        artistList += f"{artists[len(artists)-1]}"
+
+    return artistList
+
+
+def fetchSong(current_track):
+    if current_track==None:
+        return
+
+    song = current_track["item"]
+    artURL = song["album"]["images"][1]["url"]    
+    artistList = getArtists(song)
+
+    neofetch_path = os.path.expanduser(config.PATH)
+    urllib.request.urlretrieve(artURL, f"{neofetch_path}/spotifyImage.png")
+
+    songInfo = getCurrentPlayingSongInfo(current_track, artistList)
+    file_path = f"{neofetch_path}/spotifySong.txt"
+    with open(file_path, 'w') as file:
+        file.write(songInfo)
+

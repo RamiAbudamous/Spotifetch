@@ -9,6 +9,6 @@ if __name__ == "__main__":
 
     while True:    
         current_track = spotifyFuncs.getSpotifyTrack(spotifyCreds)
-        spotifyFuncs.getSongArt(current_track)
+        spotifyFuncs.fetchSong(current_track)
         sleep(config.UPDATE_EVERY)
         
