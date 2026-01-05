@@ -38,5 +38,5 @@ spotifetch() {
 - Copy your fastfetch config into a new file called `spotifetch.jsonc` in the `~/.config/fastfetch/` directory. 
 - Edit the new config to change the chafa image to the `spotifyImage.png` path from earlier.
 - Add `spotifetch` to the end of your `.zshrc`. If you already had `fastfetch` in there, remove it.
-- Add the `main.py` file to your systemd so that it runs on boot. This is to constantly check for what song is being streamed.
+- Add the `main.py` file as a systemd service so that it runs on boot (Google a tutorial if needed). This is to constantly check for what song is being streamed.
 - Reboot the system.
