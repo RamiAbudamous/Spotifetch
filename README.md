@@ -13,7 +13,7 @@ Requirements:
 - Create an app on the [Spotify dashboard](https://developer.spotify.com/dashboard)
 - Inside the app, note down your Client ID and Client secret. Set the Redirect URI field to `http://localhost:8888/callback`.
 - Go to your [Spotify profile](https://www.spotify.com/us/account/profile/) and note down your username. Note that this is NOT the name you set for yourself, it should be a long string of random text.
-- Once the app is done being created, create a folder named 'data' and create a '`client.txt` file. Inside, put the following on individual lines:
+- Once the app is done being created, create a folder named 'data' and create a `client.txt` file. Inside, put the following on individual lines:
   -  Client ID
   -  Client Secret
   -  Redirect URI (should be `http://localhost:8888/callback`)
